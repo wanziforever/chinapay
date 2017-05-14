@@ -2,9 +2,12 @@
 
 import time
 import logging
-import GooldsDetail
-import AlipayTradePrecreateRequestBuilder
-import AlipayF2FPrecreateResult
+#import GooldsDetail
+#import AlipayTradePrecreateRequestBuilder
+#import AlipayF2FPrecreateResult
+from sdk.model.extend_params import ExtendParams
+from sdk.model.goods import newGoods
+
 
 log = logging.getLogger("alipayTrade")
 
@@ -45,7 +48,7 @@ if __name__ == "__main__":
     storeId = "test_store_id"
 
     # 业务扩展参数，目前可添加由支付宝分配的系统上编号（通过setSysServiceProviderId方法）
-    ExtendParams extendParams = ExtendParams()
+    extendParams = ExtendParams()
     extendParams.setSysServiceProviderID("2088100200300400500")
 
     # 支付超时，定义为120分钟
@@ -55,13 +58,13 @@ if __name__ == "__main__":
     goodsDetailList = []
     # 创建一个商品信息，参数含义分别为商品id（使用国标）、名称、单价（单位为分）、
     # 数量，如果需要添加商品类别，详见GoodsDetail
-    goods1 = GooldsDetail("goods_id001", "xxx小面包", 1000, 1)
+    goods1 = newGoods("goods_id001", "xxx小面包", 1000, 1)
     # 创建好一个商品后添加至商品明细列表
     goodsDetailList.append(goods1)
 
     # 继续创建并添加第一条商品信息，用户购买的产品为“黑人牙刷”，单价为5.00元，
     # 购买了两件
-    goods2 = GooldsDetail("goods_id002", "xxx牙刷", 500, 2)
+    goods2 = newGoods("goods_id002", "xxx牙刷", 500, 2)
     goodsDetailList.append(goods2)
 
     # 创建扫码支付请求builder，设置请求参数

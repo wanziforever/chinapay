@@ -10,3 +10,9 @@ class ExtendParams(object):
         return "ExtendParams{sysServiceProviderId='{0}'}"\
                .format(self.sysServiceProviderId)
     
+    def getSysServiceProviderId(self):
+        return self.sysServiceProviderId
+
+    def setSysServiceProviderId(sysServiceProviderId):
+        self.sysServiceProviderId = sysServiceProviderId
+
