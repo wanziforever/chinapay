@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding:utf-8 -*-
 
 import time
 import logging
@@ -7,12 +8,16 @@ import logging
 #import AlipayF2FPrecreateResult
 from sdk.model.extend_params import ExtendParams
 from sdk.model.goods import newGoods
+from sdk.config.configs import Configs
+from sdk.model.builder.precreate_requestbuilder import AlipayTradePrecreateRequestBuilder
 
 
-log = logging.getLogger("alipayTrade")
+#log = logging.getLogger("alipayTrade")
 
 def test_trade_precreate():
     pass
+
+Configs.init('zfbinfo.conf')
 
 if __name__ == "__main__":
     # (必填) 商户网站订单系统中唯一订单号，64个字符以内，只能包含字母，
@@ -49,7 +54,7 @@ if __name__ == "__main__":
 
     # 业务扩展参数，目前可添加由支付宝分配的系统上编号（通过setSysServiceProviderId方法）
     extendParams = ExtendParams()
-    extendParams.setSysServiceProviderID("2088100200300400500")
+    extendParams.setSysServiceProviderId("2088100200300400500")
 
     # 支付超时，定义为120分钟
     timeoutExpress = "120m"

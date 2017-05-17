@@ -1,3 +1,5 @@
+# -*- coding:utf-8 -*-
+
 """扩展信息
 
 """
@@ -13,6 +15,6 @@ class ExtendParams(object):
     def getSysServiceProviderId(self):
         return self.sysServiceProviderId
 
-    def setSysServiceProviderId(sysServiceProviderId):
+    def setSysServiceProviderId(self, sysServiceProviderId):
         self.sysServiceProviderId = sysServiceProviderId
 

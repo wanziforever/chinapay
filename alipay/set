@@ -1,0 +1,6 @@
+#!/bin/bash
+
+cwp=`pwd`
+export PYTHONPATH=$cwp
+
+echo "PYTHONPATH: $PYTHONPATH" 
