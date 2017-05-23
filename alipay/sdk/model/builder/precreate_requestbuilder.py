@@ -49,17 +49,33 @@ class AlipayTradePrecreateRequestBuilder(RequestBuilder):
             self.storeId = ""
 
             # 支付宝商家平台中配置的商户门店号
-            self.alipayStoreID = ""
+            self.alipayStoreId = ""
 
             # 商户机具终端编号，当以机具方式接入支付宝时必传
             self.terminalId = ""
 
             # 业务扩展参数，目前可添加由支付宝分配的系统商编号(通过
             # setSysServiceProviderId方法)
-            self.extendParams = None
+            self.extendParams = []
 
             # (推荐使用，相对时间) 支付超时时间，5m 5分钟
             self.timeoutExpress = ""
+
+        def __json__(self):
+            return {
+                'out_trade_no': self.outTradeNo,
+                'seller_id': self.sellerId,
+                'total_amount': self.totalAmount,
+                'discountable_amount': self.discountableAmount,
+                'undiscountable_amount': self.undiscountableAmount,
+                'goods_detail': [g.__json__() for g in self.goodsDetailList],
+                'operator_id': self.operatorId,
+                'store_id': self.storeId,
+                'alipay_store_id': self.alipayStoreId,
+                'terminal_id': self.terminalId,
+                'extend_params': [e.__json__() for e in self.extendParams],
+                'timeout_express': self.timeoutExpress
+                }
 
         def toString(self):
             return ("BizContent\{"
@@ -95,6 +111,7 @@ class AlipayTradePrecreateRequestBuilder(RequestBuilder):
         # finish the BizContent class definition
 
     def __init__(self):
+        RequestBuilder.__init__(self)
         self.bizContent = AlipayTradePrecreateRequestBuilder.BizContent()
 
     def getBizContent(self):

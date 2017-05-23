@@ -111,7 +111,7 @@ class Configs(object):
         return cls.appid
 
     @classmethod
-    def getPrivatekey(cls):
+    def getPrivateKey(cls):
         return cls.privatekey
 
     @classmethod
@@ -124,7 +124,7 @@ class Configs(object):
 
     @classmethod
     def getSignType(cls):
-        return cls.signTye
+        return cls.signType
 
     @classmethod
     def getMaxQueryRetry(cls):

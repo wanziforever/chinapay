@@ -10,9 +10,19 @@ from sdk.model.extend_params import ExtendParams
 from sdk.model.goods import newGoods
 from sdk.config.configs import Configs
 from sdk.model.builder.precreate_requestbuilder import AlipayTradePrecreateRequestBuilder
+from sdk.service.alipaytradeservice import ClientBuilder
 
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s'
+                    )
 
-#log = logging.getLogger("alipayTrade")
+log = logging.getLogger("alipayTrade_main")
+log.setLevel(logging.INFO)
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+formatter=logging.Formatter('%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s')
+ch.setFormatter(formatter)
+log.addHandler(ch)
 
 def test_trade_precreate():
     pass
@@ -80,10 +90,12 @@ if __name__ == "__main__":
     builder.setUndiscountableAmount(undiscountableAmount)
     builder.setSellerId(sellerId)
     builder.setBody(body)
+    builder.setStoreId(storeId)
     builder.setTimeoutExpress(timeoutExpress)
     builder.setGoodsDetailList(goodsDetailList)
 
-    result = AlipayF2FPrecreateResult(builder)
+    tradeService = ClientBuilder().build()
+    result = tradeService.tradePrecreate(builder)
 
     rsp = result.getTradeStatus()
     

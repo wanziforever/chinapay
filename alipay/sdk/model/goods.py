@@ -24,6 +24,13 @@ class GoodsDetail(object):
         # 商品详情
         self.body = ""
 
+    def __json__(self):
+        return {
+            'goods_id': self.goodsId,
+            'alipay_goods_id': self.alipayGoodsId,
+            'goods_name': self.goodsName,
+            'goods_category': self.goodsCategory
+            }
         
     def toString(self):
         info = {"goodsId": self.goodsId,

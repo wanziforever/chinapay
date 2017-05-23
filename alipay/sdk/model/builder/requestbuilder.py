@@ -2,11 +2,14 @@
 
 import json
 
+class RequestBuilderEncoder(json.JSONEncoder):
+    def default(self, o):
+        return o.__json__()
+
 class RequestBuilder(object):
     def __init__(self):
         self.appAuthToken = ""
         self.notifyUrl = ""
-
 
     def validate(self):
         """implemented by child class
@@ -22,7 +25,7 @@ class RequestBuilder(object):
 
     def toJsonString(self):
         """将对象转换为json字符串"""
-        json.dumps(self.getBizContent())
+        return json.dumps(self.getBizContent(), cls=RequestBuilderEncoder)
 
     def toString(self):
         info = {
