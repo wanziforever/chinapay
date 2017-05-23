@@ -1,3 +1,5 @@
+# -*- coding:utf-8 -*-
+
 class Converter(object):
     def toResponse(self, rsp, clazz):
         """把字符串转换为响应对象。

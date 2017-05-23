@@ -1,3 +1,5 @@
+# -*- coding:utf-8 -*-
+
 class AlipayParser(object):
     def parse(self, rsp):
         """把响应字符串解释成相应的领域对象。

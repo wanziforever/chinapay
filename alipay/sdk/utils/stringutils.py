@@ -1,2 +1,4 @@
 def isEmpty(s):
-	return len(s.strip()) == 0
+    if s is None:
+        return True
+    return len(s.strip()) == 0

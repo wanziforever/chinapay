@@ -3,9 +3,6 @@
 
 import time
 import logging
-#import GooldsDetail
-#import AlipayTradePrecreateRequestBuilder
-#import AlipayF2FPrecreateResult
 from sdk.model.extend_params import ExtendParams
 from sdk.model.goods import newGoods
 from sdk.config.configs import Configs
@@ -17,12 +14,12 @@ logging.basicConfig(level=logging.DEBUG,
                     )
 
 log = logging.getLogger("alipayTrade_main")
-log.setLevel(logging.INFO)
-ch = logging.StreamHandler()
-ch.setLevel(logging.INFO)
-formatter=logging.Formatter('%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s')
-ch.setFormatter(formatter)
-log.addHandler(ch)
+#log.setLevel(logging.INFO)
+#ch = logging.StreamHandler()
+#ch.setLevel(logging.INFO)
+#formatter=logging.Formatter('%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s')
+#ch.setFormatter(formatter)
+#log.addHandler(ch)
 
 def test_trade_precreate():
     pass

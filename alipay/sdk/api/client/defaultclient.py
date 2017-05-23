@@ -1,9 +1,14 @@
+import time
+from datetime import datetime
+from urllib import urlencode, unquote
+import requests as HTTPRequest
 from base_client import AlipayClient
 from sdk.constants import AlipayConstants
 from sdk.api.request.requestparametersholder import RequestParameterHolder
 from sdk.api.parser import ObjectJsonParser
 from sdk.api.response.responseencryptitem import ResponseEncryptItem
-import requests
+from sdk.api.utils import  AlipaySignature
+from sdk.utils import stringUtils
 
 class DefaultAlipayClient(AlipayClient):
     def __init__(self, *args):
@@ -29,73 +34,93 @@ class DefaultAlipayClient(AlipayClient):
             'serverUrl', 'appId', 'privateKey', 'format', 'charset',
             'alipayPublicKey', 'signType', 'encryptKey', 'encryptType'
             ]
-        
+        print args
+        self.log.debug("DefaultAlipayClient parameters initialized:")
         for arg in args:
-            avp = internals.pop(1)
+            avp = internals.pop(0)
             setattr(self, avp, arg)
+            self.log.debug("%s = %s(%s)" %(avp, getattr(self, avp), arg))
+
+        self.log.debug("DefaultAlipayClient parameters not initialized")
+        self.log.debug(",".join(internals))
 
         #print "following avps not initialized", ",".join(internals)
 
     def getRequestHolderWithSign(self, request, accessToken, appAuthToken):
+        self.log.debug("DefaultAlipayClient::getRequestHolderWithSign() enter")
         requestHolder = RequestParameterHolder()
         appParams = request.getTextParams()
-        appParams[AlipayConstants.BIZ_CONTENT_KEY, request.getBizModel()]
+        self.log.debug("DefaultAlipayClient::getRequestHolderWithSign() the request params: %s" % appParams)
+
+        if request.getBizModel():
+            appParams[AlipayConstants.BIZ_CONTENT_KEY] = request.getBizModel()
+
+        # currently, we don't support the encrypt response body, so just don'
+        # t care about the encryptType and encryptKey, isNeedEncrypt() always
+        # return false.
         if request.isNeedEncrypt():
             AlipayEncrypt.encryptContent(
                 appParams.get(AlipayConstrants.BIZ_CONTENT_KEY),
                 self.encryptType, self.encryptkey, self.charset)
 
         if not stringUtils.isEmpty(appAuthToken):
-            appParams.put(AlipayConstants.APP_AUTH_TOKEN, appAuthToken)
+            appParams[AlipayConstants.APP_AUTH_TOKEN] = appAuthToken
 
         requestHolder.setApplicationParams(appParams)
 
-        if stringUtils.isEmpty(charset):
-            charset = AlipayContants.CHARSET_UTF8
+        self.log.debug("DefaultAlipayClient::getRequestHolderWithSign() has the application params: %s" % requestHolder.getApplicationParams())
+        
+        if stringUtils.isEmpty(self.charset):
+            self.charset = AlipayConstants.CHARSET_UTF8
 
         protocalMustParams = {}
-        protocalMustParams[AlipayContants.METHOD] = request.getApiMethodName()
-        protocalMustParams[AlipayContants.VERSION] = request.getApiVersion()
-        protocalMustParams[AlipayContants.APP_ID] = self.appId
-        protocalMustParams[AlipayContants.SIGN_TYPE] = self.sign_type
-        protocalMustParams[AlipayContants.TERMINAL_TYPE] = request.getTerminalType()
-        protocalMustParams[AlipayContants.TERMINAL_TYPE] = request.getTerminalInfo()
-        protocalMustParams[AlipayContants.NOTIFY_URL] = request.getNotifyUrl()
-        protocalMustParams[AlipayContants.RETURN_URL] = request.getReturnUrl()
-        protocalMustParams[AlipayContants.CHARSET] = charset
-        
-        if request.isNeedEncrypt():
+        protocalMustParams[AlipayConstants.METHOD] = request.getApiMethodName()
+        protocalMustParams[AlipayConstants.VERSION] = request.getApiVersion()
+        protocalMustParams[AlipayConstants.APP_ID] = self.appId
+        protocalMustParams[AlipayConstants.SIGN_TYPE] = self.sign_type
+        protocalMustParams[AlipayConstants.TERMINAL_TYPE] = request.getTerminalType()
+        protocalMustParams[AlipayConstants.TERMINAL_TYPE] = request.getTerminalInfo()
+        protocalMustParams[AlipayConstants.NOTIFY_URL] = request.getNotifyUrl()
+        protocalMustParams[AlipayConstants.RETURN_URL] = request.getReturnUrl()
+        protocalMustParams[AlipayConstants.CHARSET] = self.charset
+
+        if request.isNeedEncrypt(): # currently always return false
             protocalMustParams[AlipayContants.ENCRYPT_TYPE] = self.encryptType
 
-        timestamp = int(time.time() * 1000)
         #DateFormat df = new SimpleDateFormat(AlipayConstants.DATE_TIME_FORMAT);
         #df.setTimeZone(TimeZone.getTimeZone(AlipayConstants.DATE_TIMEZONE));
-        protocalMustParams[AlipayConstants.TIMESTAMP, df.format(Datetime.datetime())]
+        #protocalMustParams[AlipayConstants.TIMESTAMP, df.format(Datetime.datetime())]
+        ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        protocalMustParams[AlipayConstants.TIMESTAMP] = ts
+        self.log.debug("DefaultAlipayClient::getRequestHolderWithSign() going to set protocal must params: %s" % protocalMustParams)
         requestHolder.setProtocalMustParams(protocalMustParams)
 
         protocalOptParams = {}
-        protocalOptParams[AlipayConstants.FORMAT] = format
+        protocalOptParams[AlipayConstants.FORMAT] = self.format
         protocalOptParams[AlipayConstants.ACCESS_TOKEN] = accessToken
         protocalOptParams[AlipayConstants.ALIPAY_SDK] = AlipayConstants.SDK_VERSION
         protocalOptParams[AlipayConstants.PROD_CODE] =  request.getProdCode()
+        self.log.debug("DefaultAlipayClient::getRequestHolderWithSign() going to set protocal opt params: %s" % protocalOptParams)
         requestHolder.setProtocalOptParams(protocalOptParams)
 
-        if stringUtils.isEmpty(self.sign_type):
+        if not stringUtils.isEmpty(self.sign_type):
             signContent = AlipaySignature.getSignatureContent(requestHolder)
             protocalMustParams[AlipayConstants.SIGN] = AlipaySignature.rsaSign(
-                signContent, privateKey, charset, self.sign_type)
+                signContent, self.privateKey, self.charset, self.sign_type)
         else:
             protocalMustParams[AlipayContants.SIGN] = ""
 
         return requestHolder
       
     def execute(self, request, authToken=None, appAuthToken=None):
-        self.log.info("execute going to do execute")
+        self.log.debug("execute going to do execute")
 
         # currently only support json format response, so do not need to check
         # the format property. if futher format like XML, will add a XML parser
-        parser = ObjectJsonParser()
-        
+        self.log.debug("new a json object parser")
+        parser = ObjectJsonParser(request.getResponseClass())
+
+        self.log.debug("call doPost to send http request, and get the response")
         rt = self.doPost(request, authToken, appAuthToken)
         if not rt:
             return None
@@ -109,20 +134,23 @@ class DefaultAlipayClient(AlipayClient):
         return tRsp
 
     def doPost(self, request, accessToken, appAuthToken):
-        self.log.info("doPost enter")
+        self.log.info("DefaultAlipayClient::doPost() enter")
         requestHolder = self.getRequestHolderWithSign(request, accessToken,
                                                       appAuthToken)
-        url = getRequestUrl(requestHolder)
+        url = self.getRequestUrl(requestHolder)
         self.log.debug("doPost get the url %s" % url)
         rsp = None
 
-        rsp = requests.post(url, data=rquestHolder.getApplicationParams())
+        # the HTTPRequest is the thirdParty requests module, need code to monitor
+        # exceptions for it
+        rsp = HTTPRequest.post(url, data=requestHolder.getApplicationParams())
         #rsp = requests.post(url, data=rquestHolder.getApplicationParams(), charet,
         #                   connectTimeout, realTimeout)
+        self.log.debug(rsp.content)
 
         result = {
             'rsp': rsp.content,
-            'textParams': requestHolder.getApplicationparams(),
+            'textParams': requestHolder.getApplicationParams(),
             'protocalMustParams': requestHolder.getProtocalMustParams(),
             'protocalOptParams': requestHolder.getProtocalOptparams(),
             'url': url
@@ -142,3 +170,9 @@ class DefaultAlipayClient(AlipayClient):
             realBody = responseBody
 
         return ResponseEncryptItem(responseBody, realBody)
+
+    def getRequestUrl(self, requestHolder):
+        mustQuery = urlencode(requestHolder.getProtocalMustParams())
+        optQuery = urlencode(requestHolder.getProtocalOptParams())
+        return self.serverUrl + "?" + mustQuery + "&" + optQuery
+        

@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 
 from base_request import AlipayRequest
+from sdk.api.response.precreate_response import AlipayTradePrecreateResponse
 
 class AlipayTradePrecreateRequest(AlipayRequest):
     def __init__(self):

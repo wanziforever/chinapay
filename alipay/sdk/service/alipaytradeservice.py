@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 
+import logging
 from sdk.config.configs import Configs
 from sdk.config.constants import Constants
 from sdk.utils import stringUtils
@@ -12,6 +13,7 @@ from sdk.model.tradestatus import TradeStatus
 
 class ClientBuilder(object):
     def __init__(self):
+        self.log = logging.getLogger(self.__class__.__name__)
         self.gatewayUrl = ""
         self.appid = ""
         self.privateKey = ""
@@ -23,21 +25,27 @@ class ClientBuilder(object):
     def build(self):
         if stringUtils.isEmpty(self.gatewayUrl):
             self.gatewayUrl = Configs.getOpenApiDomain()
+            self.log.debug("ClientBuilder::build() gatewayUrl=%s" % self.gatewayUrl)
 
         if stringUtils.isEmpty(self.appid):
             self.appid = Configs.getAppid()
+            self.log.debug("ClientBuilder::build() appid=%s" % self.appid)
 
         if stringUtils.isEmpty(self.privateKey):
             self.privateKey = Configs.getPrivateKey()
+            self.log.debug("ClientBuilder::build() privatekey=%s" % self.privateKey)
 
         if stringUtils.isEmpty(self.format):
             self.format = "json"
+            self.log.debug("ClientBuilder::build() format=%s" % self.format)
 
         if stringUtils.isEmpty(self.charset):
             self.charset = "utf-8"
+            self.log.debug("ClientBuilder::build() charset=%s" % self.charset)
 
         if stringUtils.isEmpty(self.signType):
             self.signType = Configs.getSignType()
+            self.log.debug("ClientBuilder::build() signType=%s" % self.signType)
 
         return AlipayTradeService(self)
 
@@ -134,7 +142,7 @@ class AlipayTradeService(AbsAlipayService):
         request.setNotifyUrl(builder.getNotifyUrl())
         request.putOtherTextParam("app_auth_token", builder.getAppAuthToken())
         request.setBizContent(builder.toJsonString())
-        self.log.info("trade.precreate bizContent:" + request.getBizContent())
+        #self.log.info("trade.precreate bizContent:" + request.getBizContent())
 
         response = self.getResponse(self.client, request)
         result = AlipayF2FPrecreateResult(response)

@@ -19,6 +19,3 @@ class AbsAlipayService(object):
         except Exception,e:
             print str(e)
             return None
-        
-                
-    
