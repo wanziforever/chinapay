@@ -1,1 +1,2 @@
-
+from precreate_response import AlipayTradePrecreateResponse
+from query_response import AlipayTradeQueryResponse

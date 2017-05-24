@@ -30,6 +30,3 @@ class Converter(object):
         @return
         """
         pass
-    
-    
-        

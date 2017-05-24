@@ -1,1 +1,3 @@
-
+from precreate_request import AlipayTradePrecreateRequest
+from query_request import AlipayTradeQueryRequest
+from requestparametersholder import RequestParameterHolder

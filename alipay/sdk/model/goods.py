@@ -3,6 +3,10 @@
 """商品明细
 """
 
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
 class GoodsDetail(object):
     def __init__(self):
         # 商品编号（国标）
@@ -21,15 +25,14 @@ class GoodsDetail(object):
         # 商品类别
         self.goodsCategory = ""
 
-        # 商品详情
-        self.body = ""
-
     def __json__(self):
         return {
             'goods_id': self.goodsId,
             'alipay_goods_id': self.alipayGoodsId,
             'goods_name': self.goodsName,
-            'goods_category': self.goodsCategory
+            'goods_category': self.goodsCategory,
+            'price': self.price,
+            'quantity': self.quantity
             }
         
     def toString(self):
@@ -39,7 +42,7 @@ class GoodsDetail(object):
                 "quantity": self.quantity,
                 "price": self.price,
                 "goodsCategory": self.goodsCategory,
-                "body": self.body}
+                }
 
         s = ",".join(["%s=%s" % (k, v) for k, v in info.items()])
         return "GoodsDetail{%s}" % s
@@ -82,12 +85,7 @@ class GoodsDetail(object):
     def setGoodsCategory(self, goodsCategory):
         self.goodsCategoyr = goodsCategory
 
-    def getBody(self):
-        return self.body
 
-    def setBody(self, body):
-        self.body = body
-    
 def newGoods(goodsId, goodsName, price, quantity):
     # check the price validation, quantity should be a integer
     info = GoodsDetail()

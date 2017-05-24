@@ -56,7 +56,7 @@ class AlipayTradePrecreateRequestBuilder(RequestBuilder):
 
             # 业务扩展参数，目前可添加由支付宝分配的系统商编号(通过
             # setSysServiceProviderId方法)
-            self.extendParams = []
+            self.extendParams = None
 
             # (推荐使用，相对时间) 支付超时时间，5m 5分钟
             self.timeoutExpress = ""
@@ -73,8 +73,10 @@ class AlipayTradePrecreateRequestBuilder(RequestBuilder):
                 'store_id': self.storeId,
                 'alipay_store_id': self.alipayStoreId,
                 'terminal_id': self.terminalId,
-                'extend_params': [e.__json__() for e in self.extendParams],
-                'timeout_express': self.timeoutExpress
+                'extend_params': self.extendParams.__json__(),
+                'timeout_express': self.timeoutExpress,
+                'body': self.body,
+                'subject': self.subject
                 }
 
         def toString(self):
@@ -105,7 +107,7 @@ class AlipayTradePrecreateRequestBuilder(RequestBuilder):
                 storeId = self.storeId,
                 alipayStoreId = self.alipayStoreId,
                 terminalId = self.terminalId,
-                extendParams = self.extendParams,
+                extendParams = self.extendParams.toString(),
                 timeoutExpress = self.timeoutExpress
                 )
         # finish the BizContent class definition

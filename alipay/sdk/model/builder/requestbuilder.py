@@ -25,7 +25,9 @@ class RequestBuilder(object):
 
     def toJsonString(self):
         """将对象转换为json字符串"""
-        return json.dumps(self.getBizContent(), cls=RequestBuilderEncoder)
+        # be sure to use ensure_ascii parameter to False
+        return json.dumps(self.getBizContent(), cls=RequestBuilderEncoder,
+                          ensure_ascii=False).replace(" ", "")
 
     def toString(self):
         info = {

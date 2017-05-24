@@ -1,1 +1,2 @@
-
+from precreate_requestbuilder import AlipayTradePrecreateRequestBuilder
+from query_requestbuilder import AlipayTradeQueryRequestBuilder

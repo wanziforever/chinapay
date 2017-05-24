@@ -5,9 +5,11 @@ from sdk.config.configs import Configs
 from sdk.config.constants import Constants
 from sdk.utils import stringUtils
 from sdk.service.absalipayserver import AbsAlipayService
-from sdk.api.request.precreate_request import AlipayTradePrecreateRequest
+from sdk.api.request import AlipayTradePrecreateRequest
+from sdk.api.request import AlipayTradeQueryRequest
 from sdk.api.client import DefaultAlipayClient
 from sdk.model.result import AlipayF2FPrecreateResult
+from sdk.model.result import AlipayF2FQueryResult
 from sdk.model.tradestatus import TradeStatus
 
 
@@ -25,27 +27,27 @@ class ClientBuilder(object):
     def build(self):
         if stringUtils.isEmpty(self.gatewayUrl):
             self.gatewayUrl = Configs.getOpenApiDomain()
-            self.log.debug("ClientBuilder::build() gatewayUrl=%s" % self.gatewayUrl)
+            #self.log.debug("ClientBuilder::build() gatewayUrl=%s" % self.gatewayUrl)
 
         if stringUtils.isEmpty(self.appid):
             self.appid = Configs.getAppid()
-            self.log.debug("ClientBuilder::build() appid=%s" % self.appid)
+            #self.log.debug("ClientBuilder::build() appid=%s" % self.appid)
 
         if stringUtils.isEmpty(self.privateKey):
             self.privateKey = Configs.getPrivateKey()
-            self.log.debug("ClientBuilder::build() privatekey=%s" % self.privateKey)
+            #self.log.debug("ClientBuilder::build() privatekey=%s" % self.privateKey)
 
         if stringUtils.isEmpty(self.format):
             self.format = "json"
-            self.log.debug("ClientBuilder::build() format=%s" % self.format)
+            #self.log.debug("ClientBuilder::build() format=%s" % self.format)
 
         if stringUtils.isEmpty(self.charset):
             self.charset = "utf-8"
-            self.log.debug("ClientBuilder::build() charset=%s" % self.charset)
+            #self.log.debug("ClientBuilder::build() charset=%s" % self.charset)
 
         if stringUtils.isEmpty(self.signType):
             self.signType = Configs.getSignType()
-            self.log.debug("ClientBuilder::build() signType=%s" % self.signType)
+            #self.log.debug("ClientBuilder::build() signType=%s" % self.signType)
 
         return AlipayTradeService(self)
 
@@ -123,7 +125,12 @@ class AlipayTradeService(AbsAlipayService):
                                           clientBuilder.getSignType())
 
     def queryTradeResult(self, builder):
-        response = tradeQuery(builder)
+        self.validateBuilder(builder)
+        request = AlipayTradeQueryRequest()
+        request.putOtherTextParam("app_auth_token", builder.getAppAuthToken())
+        request.setBizContent(builder.toJsonString())
+        
+        response = self.getResponse(self.client, request)
         result = AlipayF2FQueryResult(response)
         if self.querySuccess(response):
             # 查询返回该订单交易支付成功

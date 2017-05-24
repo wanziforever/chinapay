@@ -6,8 +6,14 @@ import logging
 from sdk.model.extend_params import ExtendParams
 from sdk.model.goods import newGoods
 from sdk.config.configs import Configs
-from sdk.model.builder.precreate_requestbuilder import AlipayTradePrecreateRequestBuilder
+from sdk.model.builder import AlipayTradePrecreateRequestBuilder
+from sdk.model.builder import AlipayTradeQueryRequestBuilder
 from sdk.service.alipaytradeservice import ClientBuilder
+from sdk.model.tradestatus import TradeStatus
+
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s'
@@ -26,7 +32,10 @@ def test_trade_precreate():
 
 Configs.init('zfbinfo.conf')
 
-if __name__ == "__main__":
+def dumpResponse(response):
+    log.info(response.toString())
+
+def test_trade_precreate():
     # (必填) 商户网站订单系统中唯一订单号，64个字符以内，只能包含字母，
     # 数字，下划线，
     # 需保证商户系统端不能重复，建议通过数据库sequence生成。
@@ -44,7 +53,7 @@ if __name__ == "__main__":
     # （可选）订单不可打折金额，可以配合商家平台配置折扣活动，如果酒水不参与打折，
     # 则将对应余额填写至此字段。如果该值未传入，但传入了【订单总金额】，【打折金额】
     # 则该值默认为【订单总金额】 - 【打折金额】
-    undiscountableAmount = "0"
+    undiscountableAmount = "0.01"
 
     # 如果该字段为空，则默认为与支付宝签约的商户的PID，
     # 也就是appid对应的PID
@@ -87,24 +96,67 @@ if __name__ == "__main__":
     builder.setUndiscountableAmount(undiscountableAmount)
     builder.setSellerId(sellerId)
     builder.setBody(body)
+    builder.setOperatorId(operatorId)
     builder.setStoreId(storeId)
     builder.setTimeoutExpress(timeoutExpress)
     builder.setGoodsDetailList(goodsDetailList)
+    builder.setExtendParams(extendParams)
 
     tradeService = ClientBuilder().build()
     result = tradeService.tradePrecreate(builder)
 
     rsp = result.getTradeStatus()
     
-    if rsp == 'SUCCESS':
+    if rsp == TradeStatus.SUCCESS:
         log.info("支付宝预下单成功：）")
         response = result.getResponse()
         dumpResponse(response)
-        filePath = ("/users/sudo/Desktop/qr-%s.png" % response.getOutTradeNo())
-        log.info("filePath:" + filePath)
-    elif rsp == 'FAILED':
+    elif rsp == TradeStatus.FAILED:
         log.error("支付宝预下单失败！！！")
-    elif rsp == 'UNKNOWN':
+        response = result.getResponse()
+        dumpResponse(response)
+    elif rsp == TradeStatus.UNKNOWN:
         log.error("系统异常，预下单状态未知！！！")
+        response = result.getResponse()
+        dumpResponse(response)
     else:
         log.error("不支持的交易状态， 交易返回异常！！！")
+        response = result.getResponse()
+        dumpResponse(response)
+
+
+def test_trade_query():
+    # （必填）商户订单号，通过此商户订单号查询当面付的交易状态
+    outTradeNo = "trade1494329155453320000"
+
+    # 创建查询请求builder，设置请求参数
+    builder = AlipayTradeQueryRequestBuilder()
+    builder.setOutTradeNo(outTradeNo)
+
+    tradeService = ClientBuilder().build()
+    result = tradeService.queryTradeResult(builder)
+
+    rsp = result.getTradeStatus()
+
+    if rsp == TradeStatus.SUCCESS:
+        log.info("查询返回订单支付成功：）")
+        response = result.getResponse()
+        dumpResponse(response)
+    elif rsp == TradeStatus.FAILED:
+        log.error("查询返回该订单支付失败或被关闭")
+        response = result.getResponse()
+        dumpResponse(response)
+    elif rsp == TradeStatus.UNKNOWN:
+        log.error("系统异常， 订单支付状态未知！！！")
+        response = result.getResponse()
+        dumpResponse(response)
+    else:
+        log.error("不支持的交易状态，交易返回异常！！！")
+        response = result.getResponse()
+        dumpResponse(response)
+
+
+
+if __name__ == "__main__":
+    test_trade_precreate()
+    test_trade_query()

@@ -1,9 +1,12 @@
 # -*- coding:utf-8 -*-
 
-
 import ConfigParser
 import StringIO
 import functools
+import sys
+import codecs
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 class Configs(object):
     openApiDomain = ""
@@ -27,7 +30,7 @@ class Configs(object):
     @classmethod
     def init(cls, filePath):
         with open(filePath) as fd:
-            config_str = '[root]\n' + fd.read()
+            config_str = ('[root]\n' + fd.read()).encode('utf-8')
 
         fp = StringIO.StringIO(config_str)
         configs = ConfigParser.RawConfigParser()

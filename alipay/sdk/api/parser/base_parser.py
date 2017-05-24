@@ -1,6 +1,11 @@
 # -*- coding:utf-8 -*-
 
+import logging
+
 class AlipayParser(object):
+    def __init__(self):
+        self.log = logging.getLogger(self.__class__.__name__)
+        
     def parse(self, rsp):
         """把响应字符串解释成相应的领域对象。
         @param rsp 响应字符串

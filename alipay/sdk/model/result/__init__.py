@@ -1,1 +1,2 @@
 from alipayf2fprecreate_result import AlipayF2FPrecreateResult
+from alipayf2fquery_result import AlipayF2FQueryResult

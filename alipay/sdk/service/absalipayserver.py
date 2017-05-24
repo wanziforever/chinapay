@@ -17,5 +17,6 @@ class AbsAlipayService(object):
             return response
         
         except Exception,e:
-            print str(e)
+            import traceback
+            print traceback.format_exc()
             return None

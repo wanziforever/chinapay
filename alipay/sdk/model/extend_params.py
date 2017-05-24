@@ -10,7 +10,7 @@ class ExtendParams(object):
 
     def __json__(self):
         return {
-            'sys_service_provider_id': self.self.sysServiceProviderId
+            'sys_service_provider_id': self.sysServiceProviderId
             }
 
     def toString(self):
